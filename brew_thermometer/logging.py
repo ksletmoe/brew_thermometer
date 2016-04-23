@@ -5,7 +5,7 @@ from brew_thermometer.errors import ConfigurationError
 
 LOG_FORMATTER = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
 DEFAULT_LOG_LEVEL_STR = 'warning'
-PRODUCTION_LOG_FILE = '/var/log/fermenter_monitor/fementer_monitor_server.log'
+PRODUCTION_LOG_FILE = '/var/log/brew_thermometer/brew_thermometer.log'
 
 
 def get_logger(config_log_level, logger_name):
