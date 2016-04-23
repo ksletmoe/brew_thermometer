@@ -9,17 +9,23 @@ class Thermometer:
 
     TEMP_LINE_REGEX = re.compile('t=(\d+)')
 
-    def __init__(self, device_id):
+    def __init__(self, device_id, logger):
         self.device_id = device_id
+        self._device_path = self._get_device_path(self.device_id)
+        self._logger = logger.getChild("thermometer_{}".format(self.device_id))
 
     def get_temperature(self):
         """
         Attempts to read the temperature from the device, returns the temperature in 1/1000 degrees Celsius if
         temp was read, or None, otherwise.
         """
-        read_temp, temp = self._parse_temperature(self._read_device_data())
-        if read_temp:
-            return temp
+        read_data = self._read_device_data()
+        if read_data:
+            read_temp, temp = self._parse_temperature(self._read_device_data())
+            if read_temp:
+                return temp
+            else:
+                return None
         else:
             return None
 
@@ -35,7 +41,10 @@ class Thermometer:
             return None
 
     @staticmethod
-    def _parse_temperature(data_str):
+    def _get_device_path(device_id):
+        return path.join('/sys/bus/w1/devices', device_id, 'w1_slave')
+
+    def _parse_temperature(self, data_str):
         """
         Returns a tuple, where the first value is a boolean denoting whether or not a temp was successfully read,
         and the second value is either:
@@ -60,10 +69,15 @@ class Thermometer:
                     try:
                         temp = int(m.group(1))
                     except ValueError:
-                        # TODO: log error
+                        self._logger.error(
+                            "Read temperature value '%s' could not be converted to an integer", m.group(1)
+                        )
                         read_temp = False
                 else:
-                    # TODO: log error
+                    self._logger.error(
+                        "Could not parse temperature value from what was read from the thermometer device:\n%s\n",
+                        read_temp
+                    )
                     read_temp = False
 
             else:
@@ -71,10 +85,17 @@ class Thermometer:
 
             return read_temp, temp
         else:
-            # TODO: log error
+            self._logger.error(
+                "Data read from the thermometer device does not match expected format:\n%s\n",
+                "\n".join(data_lines)
+            )
+
             return False, None
 
     def _read_device_data(self):
-        # TODO: handle exceptions, log errors
-        with open(path.join('/sys/bus/w1/devices', self.device_id, 'w1_slave')) as d:
-            return d.read()
+        try:
+            with open(self._device_path, 'r') as d:
+                return d.read()
+        except IOError as ioe:
+            self._logger.error("Could not read data from '%s': %s", self._device_path, ioe)
+            return None
