@@ -1,6 +1,7 @@
 import unittest
-from brew_thermometer.configuration import Configuration, DEFAULT_READ_INTERVAL_SECONDS, DEFAULT_LOOP_INTERVAL_SECONDS
+from brew_thermometer.configuration import Configuration, DEFAULT_READ_INTERVAL_SECONDS, DEFAULT_LOOP_INTERVAL_SECONDS, BREW_THERMOMETER_DEV_FLAG
 from brew_thermometer.logging import DEFAULT_LOG_LEVEL_STR
+from os import environ
 
 
 class TestConfiguration(unittest.TestCase):
@@ -19,6 +20,22 @@ class TestConfiguration(unittest.TestCase):
                 },
             ]
         }
+
+    def tearDown(self):
+        # tests won't work if we set the dev flag to a falsy value
+        environ[BREW_THERMOMETER_DEV_FLAG] = '1'
+
+    def test_is_developer_mode_detects_true(self):
+        environ[BREW_THERMOMETER_DEV_FLAG] = '1'
+        self.assertTrue(Configuration.is_developer_mode(),
+                        msg="Configuration.is_developer_mode() should return true if the env variable "
+                            "BREW_THERMOMETER_DEVELOPMENT is set to a truthy value")
+
+    def test_is_developer_mode_detects_false(self):
+        environ.pop(BREW_THERMOMETER_DEV_FLAG)
+        self.assertFalse(Configuration.is_developer_mode(),
+                         msg="Configuration.is_developer_mode() should return false if the env variable "
+                             "BREW_THERMOMETER_DEVELOPMENT isnt' set or is set to a falsy value")
 
     def test_get_log_level(self):
         self.assertEqual(Configuration(self.conf_hash).get_log_level(), self.conf_hash['log_level'],

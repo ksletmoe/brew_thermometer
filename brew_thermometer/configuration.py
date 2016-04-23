@@ -5,6 +5,7 @@ from brew_thermometer.errors import ConfigurationError
 from brew_thermometer.logging import get_logger, DEFAULT_LOG_LEVEL_STR
 
 
+BREW_THERMOMETER_DEV_FLAG = 'BREW_THERMOMETER_DEVELOPMENT'
 BREW_THERMOMETER_CONFIG_ENV_VAR = 'BREW_THERMOMETER_CONFIG'
 DEFAULT_CONFIG_PATH = '/etc/brew_thermometer/config.json'
 DEFAULT_READ_INTERVAL_SECONDS = 30
@@ -14,13 +15,20 @@ DEFAULT_LOOP_INTERVAL_SECONDS = 1
 class Configuration:
     def __init__(self, config_hash):
         self._config_hash = config_hash
-        self._logger = get_logger(self.get_log_level(), __name__)
+        self._logger = get_logger(self.get_log_level(), __name__, self.is_developer_mode())
 
     def get_log_level(self):
         if 'log_level' in self._config_hash:
             return self._config_hash['log_level']
         else:
             return DEFAULT_LOG_LEVEL_STR
+
+    @staticmethod
+    def is_developer_mode():
+        if BREW_THERMOMETER_DEV_FLAG in environ and environ[BREW_THERMOMETER_DEV_FLAG]:
+            return True
+        else:
+            return False
 
     def get_read_interval_seconds(self):
         return self._parse_int('read_interval_seconds', DEFAULT_READ_INTERVAL_SECONDS)

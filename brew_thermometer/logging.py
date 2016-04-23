@@ -8,18 +8,23 @@ DEFAULT_LOG_LEVEL_STR = 'warning'
 PRODUCTION_LOG_FILE = '/var/log/brew_thermometer/brew_thermometer.log'
 
 
-def get_logger(config_log_level, logger_name):
+def get_logger(config_log_level, logger_name, developer_mode=False):
     conf_error = None
-    try:
-        log_level = _get_log_level(config_log_level)
-    except ConfigurationError as ce:
-        conf_error = ce
-        log_level = _get_log_level(DEFAULT_LOG_LEVEL_STR)
 
     logger = logging.getLogger(logger_name)
+    if developer_mode:
+        from logging import StreamHandler
+        log_handler = StreamHandler()
+        log_handler.setLevel(logging.DEBUG)
+    else:
+        log_handler = TimedRotatingFileHandler(PRODUCTION_LOG_FILE, when='midnight', interval=1, backupCount=7)
+        try:
+            log_level = _get_log_level(config_log_level)
+        except ConfigurationError as ce:
+            conf_error = ce
+            log_level = _get_log_level(DEFAULT_LOG_LEVEL_STR)
+        log_handler.setLevel(log_level)
 
-    log_handler = TimedRotatingFileHandler(PRODUCTION_LOG_FILE, when='midnight', interval=1, backupCount=7)
-    log_handler.setLevel(log_level)
     log_handler.setFormatter(LOG_FORMATTER)
     logger.addHandler(log_handler)
 
