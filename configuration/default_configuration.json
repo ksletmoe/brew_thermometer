@@ -1,0 +1,6 @@
+{
+    "log_level": "info",
+    "read_interval_seconds": 30,
+    "loop_interval_seconds": 1,
+    "thermometers": []
+}
