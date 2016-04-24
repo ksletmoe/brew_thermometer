@@ -1,11 +1,13 @@
+from os import environ
 import unittest
+from tests.test_brew_thermometer import TestBrewThermometer
 from brew_thermometer.configuration import Configuration, DEFAULT_READ_INTERVAL_SECONDS, DEFAULT_LOOP_INTERVAL_SECONDS, BREW_THERMOMETER_DEV_FLAG
 from brew_thermometer.logging import DEFAULT_LOG_LEVEL_STR
-from os import environ
 
 
-class TestConfiguration(unittest.TestCase):
+class TestConfiguration(TestBrewThermometer):
     def setUp(self):
+        super()
         self.conf_hash = {
             'log_level': 'info',
             'read_interval_seconds': 20,
@@ -20,10 +22,6 @@ class TestConfiguration(unittest.TestCase):
                 },
             ]
         }
-
-    def tearDown(self):
-        # tests won't work if we set the dev flag to a falsy value
-        environ[BREW_THERMOMETER_DEV_FLAG] = '1'
 
     def test_is_developer_mode_detects_true(self):
         environ[BREW_THERMOMETER_DEV_FLAG] = '1'
