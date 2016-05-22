@@ -1,4 +1,5 @@
 from paho.mqtt import client as mqtt
+import ssl
 from brew_thermometer.errors import ReporterError
 import json
 
@@ -8,7 +9,6 @@ class AwsIotReporter:
         self._logger = logger.getChild("AwsIotReporter")
         self._broker_host = config_hash["host"]
         self._broker_port = config_hash["port"]
-        self._thing_name = config_hash["thing_name"]
         self._topic = config_hash["topic_name"]
         self._ca_cert_path = config_hash["certificate_authority_cert_file_path"]
         self._cert_file_path = config_hash["cert_file_path"]
@@ -23,7 +23,7 @@ class AwsIotReporter:
     def publish_payload(self, payload_hash):
         payload_str = json.dumps(payload_hash)
         self._ensure_connection()
-        res, _ = self._client.publish(self._topic, payload=payload_str, qos=1, retain=True)
+        res, _ = self._client.publish(self._topic, payload=payload_str, qos=1)
         if res == mqtt.MQTT_ERR_SUCCESS:
             return True
         else:
@@ -32,8 +32,10 @@ class AwsIotReporter:
 
     def _ensure_connection(self):
         if self._connected is False:
-            self._client.tls_set([self._ca_cert_path], certfile=self._cert_file_path, keyfile=self._private_key_path)
-            self._client.connect(self._broker_host, self._broker_port)
+            self._client.tls_set(self._ca_cert_path, certfile=self._cert_file_path, keyfile=self._private_key_path,
+                                 cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2, ciphers=None)
+            self._client.connect(self._broker_host, self._broker_port, keepalive=60)
+            self._client.loop_start()
             self._connected = True
 
     def _on_connect(self, client, userdata, flags, rc):
@@ -45,6 +47,6 @@ class AwsIotReporter:
     def _on_disconnect(self, client, userdata, rc):
         if rc != 0:  # unexpected disconnect
             self._logger.error("Unexpected AWS IOT service disconnect: %s -- Reconnecting...", str(rc))
-            self._client.reconnect()
         else:
             self._logger.info("Disconnected: %s", str(rc))
+
