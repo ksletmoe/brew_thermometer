@@ -1,4 +1,5 @@
 import datetime
+import traceback
 from time import sleep
 from brew_thermometer.thermometer import Thermometer
 from brew_thermometer.configuration import load_config
@@ -23,7 +24,8 @@ class BrewThermometerApp:
                 reported_temp_ids = self._report_read_temperatures(read_temps)
                 self._record_reported_temps(reported_temp_ids)
             except Exception as e:
-                self._logger.error("Error while reading thermometers: {}".format(e))
+                self._logger.error("Error while reading thermometers: {}\n\n".format(e, ))
+                self._logger.exception(traceback.format_exc())
 
             sleep(self.loop_interval_seconds)
 
