@@ -1,3 +1,6 @@
 .idea/
 **/__pycache__/**
+MANIFEST
+dist/
+brew_thermometer.egg-info/
 
