@@ -39,6 +39,9 @@ class Configuration:
     def get_thermometer_configs(self):
         return self._parse_thermometer_configs()
 
+    def get_temperature_reporter_config(self):
+        return self._config_hash['aws_iot_configuration']
+
     def _parse_int(self, conf_key, default_val):
         if conf_key in self._config_hash:
             conf_val = self._config_hash[conf_key]
@@ -76,16 +79,25 @@ def load_config():
     """
     Valid config as follows:
     {
-        log_level: 'warning',  # valid values: debug, info, warning, error, critical
-        read_interval_seconds: 30,  # how often to read and report values. if not specified, defaults to DEFAULT_READ_INTERVAL_SECONDS
-        loop_interval_seconds: 1,  # how often to check to see if we need to read each thermometer. if not specified, defaults to DEFAULT_loop_INTERVAL_SECONDS
+        "log_level": "warning",  # valid values: debug, info, warning, error, critical
+        "read_interval_seconds": 30,  # how often to read and report values. if not specified, defaults to DEFAULT_READ_INTERVAL_SECONDS
+        "loop_interval_seconds": 1,  # how often to check to see if we need to read each thermometer. if not specified, defaults to DEFAULT_loop_INTERVAL_SECONDS
         thermometers: [
             {
-                id: "28-0000075eddab",  # the device ID of the thermometer
-                description: "Fermenter (Internal)"  # human readable description of the thermometer (e.g. "ambient air", "fermenter", etc.)
+                "id": "28-0000075eddab",  # the device ID of the thermometer
+                "description": "Fermenter (Internal)"  # human readable description of the thermometer (e.g. "ambient air", "fermenter", etc.)
             },
             ...
-        ]
+        ],
+        "aws_iot_configuration": {
+            "host": "",
+            "port": 8883,
+            "certificate_authority_cert_file_path": "",
+            "cert_file_path": "",
+            "private_key_path": "",
+            "thing_name": "BrewThermometer",
+            "topic_name": "temperature"
+        }
     }
     """
     conf_path = get_config_file_path()

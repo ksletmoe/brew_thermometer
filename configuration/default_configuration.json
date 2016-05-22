@@ -1,6 +1,15 @@
 {
-    "log_level": "info",
-    "read_interval_seconds": 30,
-    "loop_interval_seconds": 1,
-    "thermometers": []
+  "log_level": "info",
+  "read_interval_seconds": 30,
+  "loop_interval_seconds": 1,
+  "thermometers": [],
+  "aws_iot_configuration": {
+    "host": "",
+    "port": 8883,
+    "certificate_authority_cert_file_path": "",
+    "cert_file_path": "",
+    "private_key_path": "",
+    "thing_name": "BrewThermometer",
+    "topic_name": "temperature"
+  }
 }
