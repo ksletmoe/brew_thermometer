@@ -33,6 +33,7 @@ class BrewThermometerApp:
             if self._should_read_thermometer(thermometer_id["last_read"]):
                 temp = thermometer_info['thermometer'].get_temperature_c()
                 if temp is not None:
+                    self._logger.debug("Read temperature %s from thermometer %s", str(temp), thermometer_id)
                     read_values[thermometer_id] = temp
                 else:
                     self._logger.warn("Could not read thermometer with ID {0}".format(thermometer_id))
@@ -56,6 +57,7 @@ class BrewThermometerApp:
             }
 
             if self._temperature_reporter.publish_payload(payload):
+                self._logger.debug("Published payload: %s", str(payload))
                 successful_reports.append(thermometer_id)
 
         return successful_reports
@@ -68,6 +70,7 @@ class BrewThermometerApp:
         thermometers = {}
 
         for conf in thermometer_configs:
+            self._logger.debug("Thermometer: %s - %s", conf.id, conf.description)
             thermometers[conf.id] = {
                 'thermometer': Thermometer(conf.id, self._logger),
                 'description': conf.description,
