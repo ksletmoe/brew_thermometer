@@ -9,7 +9,6 @@
     "certificate_authority_cert_file_path": "",
     "cert_file_path": "",
     "private_key_path": "",
-    "thing_name": "BrewThermometer",
     "topic_name": "temperature"
   }
 }
