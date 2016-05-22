@@ -13,7 +13,7 @@ chmod -R 700 "$CONF_DIR"
 cp "$DEFAULT_CONF_FILE" "$CONF_DIR/$CONF_FILE_NAME"
 
 echo "configuring brew_thermometer log directory..."
-mkdir -P "$LOG_DIR"
+mkdir -p "$LOG_DIR"
 chown -R "$PI_USER":"$PI_USER" "$LOG_DIR"
 chmod -R 700 "$LOG_DIR"
 
